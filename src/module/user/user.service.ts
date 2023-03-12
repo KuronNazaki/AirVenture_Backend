@@ -24,9 +24,9 @@ export class UserService implements IUserService {
     return await this.userRepository.find()
   }
 
-  async findOne(uuid: string): Promise<CreateUserDto> {
+  async findOne(id: string): Promise<CreateUserDto> {
     const fetchedUser: CreateUserDto = await this.userRepository.findOneBy({
-      uuid,
+      id,
     })
     return fetchedUser
   }

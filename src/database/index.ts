@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { NODE_ENV } from 'src/app/constant/app.constant'
-import { UserEntity } from 'src/user/user.entity'
 import { SnakeNamingStrategy } from './strategy/snake-naming.strategy'
+import { LIST_OF_ENTITIES } from 'src/module'
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
@@ -16,7 +16,7 @@ import { SnakeNamingStrategy } from './strategy/snake-naming.strategy'
         username: configService.get('POSTGRES_USER'),
         password: configService.get('POSTGRES_PASSWORD'),
         database: configService.get('POSTGRES_DB'),
-        entities: [UserEntity],
+        entities: [...LIST_OF_ENTITIES],
         namingStrategy: new SnakeNamingStrategy(),
         synchronize: configService.get('NODE_ENV') === NODE_ENV.DEVELOPMENT,
         logging: configService.get('NODE_ENV') === NODE_ENV.DEVELOPMENT,

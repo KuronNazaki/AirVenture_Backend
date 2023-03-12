@@ -7,14 +7,15 @@ import {
   UpdateDateColumn,
 } from 'typeorm'
 
-export abstract class AbstractEntity {
-  @PrimaryGeneratedColumn()
-  @Exclude()
-  id: number
+export interface IAbstract {
+  id: string
+  createdAt: Date
+  modifiedAt: Date
+}
 
-  @Column()
-  @Generated('uuid')
-  uuid: string
+export abstract class AbstractEntity implements IAbstract {
+  @PrimaryGeneratedColumn('uuid')
+  id: string
 
   @CreateDateColumn()
   @Exclude()
@@ -22,5 +23,5 @@ export abstract class AbstractEntity {
 
   @UpdateDateColumn()
   @Exclude()
-  updatedAt: Date
+  modifiedAt: Date
 }

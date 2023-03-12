@@ -1,11 +1,19 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common'
-import { UserModule } from '../user/user.module'
-import { AuthModule } from '../auth/auth.module'
+import { AuthModule } from '../module/auth/auth.module'
 import { LoggerMiddleware } from '../middleware/logger.middleware'
 import { ConfigModule } from '@nestjs/config'
 import * as Joi from '@hapi/joi'
 import { NODE_ENV } from './constant/app.constant'
 import { DatabaseModule } from 'src/database'
+import { RoleModule } from '../module/role/role.module'
+import { AccountModule } from '../module/account/account.module'
+import { AirportModule } from '../module/airport/airport.module'
+import { AircraftModule } from '../module/aircraft/aircraft.module'
+import { FlightModule } from 'src/module/flight/flight.module'
+import { SeatModule } from 'src/module/seat/seat.module'
+import { InvoiceModule } from 'src/module/invoice/invoice.module'
+import { TicketModule } from 'src/module/ticket/ticket.module'
+import { MailModule } from '../module/mail/mail.module'
 
 @Module({
   imports: [
@@ -33,8 +41,16 @@ import { DatabaseModule } from 'src/database'
     //   synchronize: true,
     // }),
     DatabaseModule,
-    UserModule,
     AuthModule,
+    RoleModule,
+    AccountModule,
+    AirportModule,
+    AircraftModule,
+    FlightModule,
+    SeatModule,
+    InvoiceModule,
+    TicketModule,
+    MailModule,
   ],
 })
 export class AppModule implements NestModule {
