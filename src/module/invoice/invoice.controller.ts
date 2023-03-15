@@ -1,32 +1,28 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   Post,
-  Put,
-  Logger,
   ParseUUIDPipe,
-  UsePipes,
   UseInterceptors,
   HttpCode,
 } from '@nestjs/common'
-import { JoiValidationPipe } from 'src/common/pipe/joi-validation.pipe'
 import { TransformInterceptor } from '../../common/interceptor/transform.interceptor'
 import { ResponseMessage } from 'src/common/decorator/response-message.decorator'
-import { InvoiceRequestDto, invoiceRequestSchema } from './invoice.dto'
+import { InvoiceRequestDto } from './invoice.dto'
 import { IInvoice } from './invoice.model'
 import { IInvoiceService } from './invoice.service'
+import { Roles } from 'src/common/decorator/roles.decorator'
+import { RolesEnum, ApiPath } from '../../app/constant/app.constant'
+import { UseGuards } from '@nestjs/common/decorators'
+import { JwtAuthGuard } from '../auth/jwt-auth.guard'
+import { RolesGuard } from 'src/common/guard/role-based.guard'
 
-@Controller({ path: 'api/invoices', version: '1' })
+@Controller({ path: [ApiPath.BASE, ApiPath.INVOICES].join('/'), version: '1' })
 @UseInterceptors(TransformInterceptor<InvoiceRequestDto>)
 export class InvoiceController {
-  private logger: Logger
-
-  constructor(private readonly invoiceService: IInvoiceService) {
-    this.logger = new Logger()
-  }
+  constructor(private readonly invoiceService: IInvoiceService) {}
 
   @Get()
   @ResponseMessage('Success')
@@ -41,34 +37,36 @@ export class InvoiceController {
     return data
   }
 
-  @Post()
-  @HttpCode(201)
-  @ResponseMessage('Role Created')
-  async create(@Body() flightRequest: InvoiceRequestDto) {
-    // const createdRole = await this.invoiceController.create()
-    // return createdRole
-    return {}
-  }
+  // @Post()
+  // @HttpCode(201)
+  // @ResponseMessage('Role Created')
+  // async create(@Body() flightRequest: InvoiceRequestDto) {
+  // const createdRole = await this.invoiceController.create()
+  // return createdRole
+  //   return {}
+  // }
 
-  @Post('verify-transaction')
+  @Post(ApiPath.VERIFY_TRANSACTION)
   @HttpCode(200)
+  @Roles(RolesEnum.EMPLOYEE)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @ResponseMessage('Success')
   async verifyTransaction(@Body() requestDto: { invoiceId: string }) {
     await this.invoiceService.verifyTransaction(requestDto.invoiceId)
   }
 
-  @Put(':id')
-  @ResponseMessage('Updated')
-  update(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() role: InvoiceRequestDto
-  ) {
-    return this.invoiceService.update(id, role)
-  }
+  // @Put(':id')
+  // @ResponseMessage('Updated')
+  // update(
+  //   @Param('id', new ParseUUIDPipe()) id: string,
+  //   @Body() role: InvoiceRequestDto
+  // ) {
+  //   return this.invoiceService.update(id, role)
+  // }
 
-  @Delete(':id')
-  @ResponseMessage('Deleted')
-  deleteUser(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.invoiceService.delete(id)
-  }
+  // @Delete(':id')
+  // @ResponseMessage('Deleted')
+  // deleteUser(@Param('id', new ParseUUIDPipe()) id: string) {
+  //   return this.invoiceService.delete(id)
+  // }
 }

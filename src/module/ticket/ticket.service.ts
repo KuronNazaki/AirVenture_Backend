@@ -33,8 +33,6 @@ export abstract class ITicketService {
 
 @Injectable()
 export class TicketService implements ITicketService {
-  private logger: Logger
-
   constructor(
     private readonly ticketRepository: ITicketRepository,
     @Inject(forwardRef(() => IAccountService))
@@ -44,9 +42,7 @@ export class TicketService implements ITicketService {
     @Inject(forwardRef(() => IInvoiceService))
     private readonly invoiceService: IInvoiceService,
     private readonly flightService: IFlightService
-  ) {
-    this.logger = new Logger()
-  }
+  ) {}
 
   async findTicketByInvoice(invoiceId: string) {
     const ticket = await this.ticketRepository.findTicketByInvoiceId(invoiceId)
@@ -120,7 +116,6 @@ export class TicketService implements ITicketService {
             payload.flightId
           )
         ) {
-          console.log('Go here')
           throw new BadRequestException('Customer already booked flight')
         }
         if (

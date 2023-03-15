@@ -14,13 +14,20 @@ import { Request } from 'express'
 import { IAuthService } from './auth.service'
 import { TransformInterceptor } from '../../common/interceptor/transform.interceptor'
 import { ApiPath } from 'src/app/constant/app.constant'
-import { RegisterRequestDto } from './register-request.dto'
+import {
+  RegisterRequestDto,
+  registerRequestSchema,
+} from './register-request.dto'
 import { AccountRequestDto } from '../account/account.dto'
 import { IAccountService } from '../account/account.service'
 import { ICustomerService } from '../customer/customer.service'
 import { ICustomer } from '../customer/customer.model'
 import { HttpExceptionFilter } from '../../common/filter/http-exception.filter'
 import { logger } from 'src/util/logger'
+import { RolesEnum } from '../../app/constant/app.constant'
+import { ResponseMessage } from 'src/common/decorator/response-message.decorator'
+import { UsePipes } from '@nestjs/common/decorators'
+import { JoiValidationPipe } from 'src/common/pipe/joi-validation.pipe'
 
 @Controller({ path: [ApiPath.BASE, ApiPath.AUTH].join('/'), version: '1' })
 @UseInterceptors(TransformInterceptor)
@@ -46,26 +53,39 @@ export class AuthController {
   }
 
   @Post(ApiPath.REGISTER)
-  async register(@Body() registerRequest: RegisterRequestDto) {
-    let account = await this.accountService.getAccountByEmail(
-      registerRequest.email
-    )
+  @UsePipes(new JoiValidationPipe(registerRequestSchema))
+  @ResponseMessage('Registered')
+  async register(
+    @Body()
+    requestDto: {
+      email: string
+      password: string
+      role: string
+      firstName: string
+      lastName: string
+      gender: string
+      phoneNumber: string
+    }
+  ) {
+    let account = await this.accountService.getAccountByEmail(requestDto.email)
     if (!account) {
       const accountRequest: AccountRequestDto = {
-        email: registerRequest.email,
-        password: registerRequest.password,
-        role: 'Customer',
+        email: requestDto.email,
+        password: requestDto.password,
+        role: requestDto.role
+          ? requestDto.role
+          : RolesEnum.AUTHENTICATED_CUSTOMER,
       }
       account = await this.accountService.generateAccountFromRequest(
         accountRequest
       )
       account = await this.accountService.create(account)
       const finalAccount = await this.customerService.create({
-        firstName: registerRequest.firstName,
-        lastName: registerRequest.lastName,
-        gender: registerRequest.gender,
-        phoneNumber: registerRequest.phoneNumber,
-        email: registerRequest.email,
+        firstName: requestDto.firstName,
+        lastName: requestDto.lastName,
+        gender: requestDto.gender,
+        phoneNumber: requestDto.phoneNumber,
+        email: requestDto.email,
         account: account,
       } as ICustomer)
       return finalAccount
@@ -74,8 +94,8 @@ export class AuthController {
     }
   }
 
+  @Post(ApiPath.LOGIN)
   @UseGuards(AuthGuard('local'))
-  @Post('login')
   async login(@Req() request: Request) {
     return this.authService.login(request.user)
   }

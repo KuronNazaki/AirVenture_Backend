@@ -14,10 +14,38 @@ export enum ApiPath {
   LOGIN = 'login',
 
   // Role route
-  ROLE = 'roles',
+  ROLES = 'roles',
 
   // Account route
-  ACCOUNT = 'accounts',
+  ACCOUNTS = 'accounts',
+  BOOKING_HISTORY = 'booking-history',
+
+  // Customer route
+  CUSTOMERS = 'customers',
+
+  // Airport route
+  AIRPORTS = 'airports',
+
+  // Aircraft route
+  AIRCRAFTS = 'aircrafts',
+
+  // Flight route
+  FLIGHTS = 'flights',
+  SEARCH = 'search',
+
+  // Invoice route
+  INVOICES = 'invoices',
+  VERIFY_TRANSACTION = 'verify-transaction',
+
+  // Seat route
+  SEATS = 'seats',
+
+  // Ticket route
+  TICKETS = 'tickets',
+  RETRIEVE = 'retrieve',
+  CANCEL = 'cancel',
+  SEND_EMAIL = 'send-email',
+  SEND_PAYMENT_EMAIL = 'send-payment-email',
 }
 
 export const JWT_SECRET = 'jwtsecret'
@@ -45,4 +73,9 @@ export enum RolesEnum {
   AUTHENTICATED_CUSTOMER = 'Customer',
   EMPLOYEE = 'Employee',
   ADMINISTRATOR = 'Administrator',
+}
+
+export enum GenderEnum {
+  MALE = 'Male',
+  FEMALE = 'Female',
 }

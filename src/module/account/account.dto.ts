@@ -5,13 +5,20 @@ export const accountRequestSchema = Joi.object({
   password: Joi.string().required(),
   isActive: Joi.boolean().optional(),
   role: Joi.string().optional(),
+  image: Joi.string().optional(),
+  googleId: Joi.string().optional(),
+})
+
+export const retrieveBookingHistoryRequestSchema = Joi.object({
+  accountId: Joi.string().uuid().required(),
 })
 
 export class AccountRequestDto {
-  email: string
+  email?: string
   password?: string
   isActive?: boolean
   role?: string
   image?: string
   googleId?: string
+  salt?: string
 }

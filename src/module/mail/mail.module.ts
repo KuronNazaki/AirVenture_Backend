@@ -2,13 +2,17 @@ import { MailerModule } from '@nestjs-modules/mailer'
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter'
 import { Global, Module } from '@nestjs/common'
 import { MailService } from './mail.service'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('dotenv').config()
 import { join } from 'path'
 import { TicketModule } from '../ticket/ticket.module'
 import { FlightModule } from '../flight/flight.module'
+import { ConfigModule } from '@nestjs/config'
 
 @Global()
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     MailerModule.forRoot({
       // transport: 'smtps://user@example.com:topsecret@smtp.example.com',
       // or
@@ -17,7 +21,7 @@ import { FlightModule } from '../flight/flight.module'
         secure: false,
         auth: {
           user: 'apikey',
-          pass: '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',
+          pass: process.env.SENDGRID_API_KEY,
         },
       },
       defaults: {

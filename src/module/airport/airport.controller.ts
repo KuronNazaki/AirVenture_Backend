@@ -1,32 +1,28 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   Post,
-  Put,
-  Logger,
   ParseUUIDPipe,
-  UsePipes,
   UseInterceptors,
   HttpCode,
 } from '@nestjs/common'
-import { JoiValidationPipe } from 'src/common/pipe/joi-validation.pipe'
 import { TransformInterceptor } from '../../common/interceptor/transform.interceptor'
 import { ResponseMessage } from 'src/common/decorator/response-message.decorator'
-import { AirportRequestDto, airportResponseSchema } from './airport.dto'
+import { AirportRequestDto } from './airport.dto'
 import { IAirport } from './airport.model'
 import { IAirportService } from './airport.service'
+import { Roles } from 'src/common/decorator/roles.decorator'
+import { RolesEnum, ApiPath } from '../../app/constant/app.constant'
+import { UseGuards } from '@nestjs/common/decorators'
+import { JwtAuthGuard } from '../auth/jwt-auth.guard'
+import { RolesGuard } from '../../common/guard/role-based.guard'
 
-@Controller({ path: 'api/airports', version: '1' })
+@Controller({ path: [ApiPath.BASE, ApiPath.AIRPORTS].join('/'), version: '1' })
 @UseInterceptors(TransformInterceptor<AirportRequestDto>)
 export class AirportController {
-  private logger: Logger
-
-  constructor(private readonly airportService: IAirportService) {
-    this.logger = new Logger()
-  }
+  constructor(private readonly airportService: IAirportService) {}
 
   @Get()
   @ResponseMessage('Success')
@@ -42,6 +38,8 @@ export class AirportController {
   }
 
   @Post()
+  @Roles(RolesEnum.ADMINISTRATOR)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @HttpCode(201)
   @ResponseMessage('Created')
   async create(@Body() role: AirportRequestDto) {
@@ -49,18 +47,18 @@ export class AirportController {
     return createdRole
   }
 
-  @Put(':id')
-  @ResponseMessage('Updated')
-  update(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() role: AirportRequestDto
-  ) {
-    return this.airportService.update(id, role)
-  }
+  // @Put(':id')
+  // @ResponseMessage('Updated')
+  // update(
+  //   @Param('id', new ParseUUIDPipe()) id: string,
+  //   @Body() role: AirportRequestDto
+  // ) {
+  //   return this.airportService.update(id, role)
+  // }
 
-  @Delete(':id')
-  @ResponseMessage('Deleted')
-  deleteUser(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.airportService.delete(id)
-  }
+  // @Delete(':id')
+  // @ResponseMessage('Deleted')
+  // deleteUser(@Param('id', new ParseUUIDPipe()) id: string) {
+  //   return this.airportService.delete(id)
+  // }
 }

@@ -9,8 +9,6 @@ import { logger } from 'src/util/logger'
 import { IInvoiceService } from '../invoice/invoice.service'
 import { ITicketService } from '../ticket/ticket.service'
 import { forwardRef } from '@nestjs/common/utils'
-import { IInvoice } from '../invoice/invoice.model'
-import { resolve } from 'path'
 import { IFlightService } from '../flight/flight.service'
 const bcrypt = require('bcrypt')
 
@@ -50,9 +48,7 @@ export class AccountService implements IAccountService {
     const account = await this.accountRepository.findOne({
       where: { id: accountId },
     })
-    console.log('account', account)
     let invoices = await this.invoiceService.getAllInvoiceByAccount(account)
-    console.log('invoices', invoices)
     invoices = await Promise.all(
       invoices.map(async (invoice) => {
         const ticket = await this.ticketService.findTicketByInvoice(invoice.id)
@@ -66,12 +62,7 @@ export class AccountService implements IAccountService {
         }
       })
     )
-    console.log('invoices with tickets', invoices)
     return invoices
-  }
-
-  private findTicketPromise(invoices: IInvoice[]) {
-    // return new Promise((resolve, reject) => {})
   }
 
   async getAccountByEmail(email: string): Promise<IAccount> {

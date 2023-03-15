@@ -1,32 +1,21 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
   Param,
-  Post,
-  Put,
-  Logger,
   ParseUUIDPipe,
-  UsePipes,
   UseInterceptors,
-  HttpCode,
 } from '@nestjs/common'
-import { JoiValidationPipe } from 'src/common/pipe/joi-validation.pipe'
 import { TransformInterceptor } from '../../common/interceptor/transform.interceptor'
 import { ResponseMessage } from 'src/common/decorator/response-message.decorator'
-import { RoleRequestDto, roleRequestSchema } from './role.dto'
+import { RoleRequestDto } from './role.dto'
 import { IRole } from './role.entity'
 import { IRoleService } from './role.service'
+import { ApiPath } from '../../app/constant/app.constant'
 
-@Controller({ path: 'api/roles', version: '1' })
+@Controller({ path: [ApiPath.BASE, ApiPath.ROLES].join('/'), version: '1' })
 @UseInterceptors(TransformInterceptor<RoleRequestDto>)
 export class RoleController {
-  private logger: Logger
-
-  constructor(private readonly roleService: IRoleService) {
-    this.logger = new Logger()
-  }
+  constructor(private readonly roleService: IRoleService) {}
 
   @Get()
   @ResponseMessage('Success')
@@ -41,27 +30,27 @@ export class RoleController {
     return data
   }
 
-  @Post()
-  @HttpCode(201)
-  @ResponseMessage('Role Created')
-  @UsePipes(new JoiValidationPipe(roleRequestSchema))
-  async create(@Body() role: RoleRequestDto) {
-    const createdRole = this.roleService.create(role)
-    return createdRole
-  }
+  // @Post()
+  // @HttpCode(201)
+  // @ResponseMessage('Role Created')
+  // @UsePipes(new JoiValidationPipe(roleRequestSchema))
+  // async create(@Body() role: RoleRequestDto) {
+  //   const createdRole = this.roleService.create(role)
+  //   return createdRole
+  // }
 
-  @Put(':id')
-  @ResponseMessage('Updated')
-  update(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Body() role: RoleRequestDto
-  ) {
-    return this.roleService.update(id, role)
-  }
+  // @Put(':id')
+  // @ResponseMessage('Updated')
+  // update(
+  //   @Param('id', new ParseUUIDPipe()) id: string,
+  //   @Body() role: RoleRequestDto
+  // ) {
+  //   return this.roleService.update(id, role)
+  // }
 
-  @Delete(':id')
-  @ResponseMessage('Deleted')
-  deleteUser(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.roleService.delete(id)
-  }
+  // @Delete(':id')
+  // @ResponseMessage('Deleted')
+  // deleteUser(@Param('id', new ParseUUIDPipe()) id: string) {
+  //   return this.roleService.delete(id)
+  // }
 }

@@ -4,9 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  Post,
-  Put,
-  Logger,
   ParseUUIDPipe,
   UsePipes,
   UseInterceptors,
@@ -16,28 +13,26 @@ import {
 import { JoiValidationPipe } from 'src/common/pipe/joi-validation.pipe'
 import { TransformInterceptor } from '../../common/interceptor/transform.interceptor'
 import { ResponseMessage } from 'src/common/decorator/response-message.decorator'
-import { AccountRequestDto, accountRequestSchema } from './account.dto'
+import {
+  AccountRequestDto,
+  retrieveBookingHistoryRequestSchema,
+} from './account.dto'
 import { IAccountService } from './account.service'
-import { logger } from 'src/util/logger'
 import { IAccount } from './account.model'
-import { IRoleService } from '../role/role.service'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { HttpStatus } from '@nestjs/common/enums'
 import { RolesGuard } from '../../common/guard/role-based.guard'
 import { Roles } from 'src/common/decorator/roles.decorator'
 import { RolesEnum } from 'src/app/constant/app.constant'
+import { ApiPath } from '../../app/constant/app.constant'
 
-@Controller({ path: 'api/accounts', version: '1' })
+@Controller({ path: [ApiPath.BASE, ApiPath.ACCOUNTS].join('/'), version: '1' })
 @UseInterceptors(TransformInterceptor<AccountRequestDto>)
-// @UseFilters(HttpExceptionFilter)
 export class AccountController {
-  constructor(
-    private readonly accountService: IAccountService,
-    private readonly roleService: IRoleService
-  ) {}
+  constructor(private readonly accountService: IAccountService) {}
 
   @Get()
-  @Roles(RolesEnum.CUSTOMER)
+  @Roles(RolesEnum.ADMINISTRATOR)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ResponseMessage('Success')
   async findAll(): Promise<IAccount[]> {
@@ -45,14 +40,17 @@ export class AccountController {
     return data
   }
 
-  @Get('booking-history')
+  @Get(ApiPath.BOOKING_HISTORY)
   @HttpCode(HttpStatus.OK)
+  @Roles(RolesEnum.EMPLOYEE, RolesEnum.AUTHENTICATED_CUSTOMER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UsePipes(new JoiValidationPipe(retrieveBookingHistoryRequestSchema))
   @ResponseMessage('Success')
   async retrieveBookingHistory(@Body() requestDto: { accountId: string }) {
     return this.accountService.retrieveBookingHistory(requestDto.accountId)
   }
 
-  // @Get(':id')
+  // @Get('/get/:id')
   // @ResponseMessage('Success')
   // async get(@Param('id', new ParseUUIDPipe()) id: string) {
   //   const data = await this.accountService.findOne(id)
@@ -73,16 +71,18 @@ export class AccountController {
   //   return createdRole
   // }
 
-  // @Put(':id')
+  // @Put('/update/:id')
   // @ResponseMessage('Updated')
   // update(
   //   @Param('id', new ParseUUIDPipe()) id: string,
-  //   @Body() account: AccountRequestDto
+  //   @Body() account: IAccount
   // ) {
   //   return this.accountService.update(id, account)
   // }
 
   @Delete(':id')
+  @Roles(RolesEnum.ADMINISTRATOR)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @ResponseMessage('Deactivated')
   deleteUser(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.accountService.deactivateAccount(id)

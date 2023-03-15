@@ -14,6 +14,7 @@ export class RolesGuard implements CanActivate {
     }
     const request = context.switchToHttp().getRequest()
     const user = request.user
+    console.log(user)
     if (!user) {
       if (roles.includes(RolesEnum.CUSTOMER)) {
         return true
@@ -21,6 +22,8 @@ export class RolesGuard implements CanActivate {
         return false
       }
     } else {
+      console.log(user.role, roles)
+      console.log(roles.includes(user.role))
       if (roles.includes(user.role)) return true
     }
   }

@@ -22,10 +22,6 @@ export abstract class IFlightService {
     arrivalId: string,
     departDate: Date
   ): any
-  // abstract findFlightByDepartureAndArrival(
-  //   departureCode: string,
-  //   arrivalCode: string
-  // )
 }
 
 @Injectable()
@@ -40,10 +36,6 @@ export class FlightService implements IFlightService {
     this.logger = new Logger()
   }
 
-  // async findFlightByDepartureAndArrival(departureCode: string, arrivalCode: string) {
-  //   return this.flightRepository.find({where: {de}})k
-  // }
-
   async searchFlights(
     departureCode: string,
     arrivalCode: string,
@@ -56,18 +48,12 @@ export class FlightService implements IFlightService {
       departure.id,
       arrival.id
     )
-    console.log(listOfFlights)
     listOfFlights = listOfFlights.filter((flight) => {
-      console.log(
-        flight.departTime.toDateString() === departDate.toDateString(),
-        flight.arriveTime.toDateString() === departDate.toDateString()
-      )
       return (
         flight.departTime.toDateString() === departDate.toDateString() &&
         flight.arriveTime.toDateString() === departDate.toDateString()
       )
     })
-    console.log(listOfFlights)
     return listOfFlights
   }
 

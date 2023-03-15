@@ -1,29 +1,28 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
-  Post,
   Put,
   Logger,
   ParseUUIDPipe,
   UsePipes,
   UseInterceptors,
-  UseFilters,
-  HttpCode,
 } from '@nestjs/common'
 import { JoiValidationPipe } from 'src/common/pipe/joi-validation.pipe'
 import { TransformInterceptor } from '../../common/interceptor/transform.interceptor'
 import { ResponseMessage } from 'src/common/decorator/response-message.decorator'
-import { HttpExceptionFilter } from '../../common/filter/http-exception.filter'
-import { CustomerRequestDto, customerRequestSchema } from './customer.dto'
+import { CustomerRequestDto, updateCustomerRequestSchema } from './customer.dto'
 import { ICustomer } from './customer.model'
 import { ICustomerService } from './customer.service'
+import { Roles } from 'src/common/decorator/roles.decorator'
+import { RolesEnum, ApiPath } from '../../app/constant/app.constant'
+import { UseGuards } from '@nestjs/common/decorators'
+import { JwtAuthGuard } from '../auth/jwt-auth.guard'
+import { RolesGuard } from '../../common/guard/role-based.guard'
 
-@Controller({ path: 'api/customers', version: '1' })
+@Controller({ path: [ApiPath.BASE, ApiPath.CUSTOMERS].join('/'), version: '1' })
 @UseInterceptors(TransformInterceptor<CustomerRequestDto>)
-// @UseFilters(HttpExceptionFilter)
 export class CustomerController {
   private logger: Logger
 
@@ -32,17 +31,25 @@ export class CustomerController {
   }
 
   @Get()
+  @Roles(RolesEnum.ADMINISTRATOR)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @ResponseMessage('Success')
   findAll(): Promise<ICustomer[]> {
     return this.customerService.findAll()
   }
 
-  // @Get(':id')
-  // @ResponseMessage('Success')
-  // async get(@Param('id', new ParseUUIDPipe()) id: string) {
-  //   const data = await this.roleService.findOne(id)
-  //   return data
-  // }
+  @Get(':id')
+  @Roles(
+    RolesEnum.AUTHENTICATED_CUSTOMER,
+    RolesEnum.EMPLOYEE,
+    RolesEnum.ADMINISTRATOR
+  )
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ResponseMessage('Success')
+  async get(@Param('id', new ParseUUIDPipe()) id: string) {
+    const data = await this.customerService.findOne(id)
+    return data
+  }
 
   // @Post()
   // @HttpCode(201)
@@ -53,14 +60,27 @@ export class CustomerController {
   //   return createdRole
   // }
 
-  // @Put(':id')
-  // @ResponseMessage('Updated')
-  // update(
-  //   @Param('id', new ParseUUIDPipe()) id: string,
-  //   @Body() role: CustomerRequestDto
-  // ) {
-  //   return this.roleService.update(id, role)
-  // }
+  @Put(':id')
+  @Roles(
+    RolesEnum.AUTHENTICATED_CUSTOMER,
+    RolesEnum.EMPLOYEE,
+    RolesEnum.ADMINISTRATOR
+  )
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UsePipes(new JoiValidationPipe(updateCustomerRequestSchema))
+  @ResponseMessage('Updated')
+  update(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body()
+    requestDto: {
+      firstName: string
+      lastName: string
+      gender: string
+      phoneNumber: string
+    }
+  ) {
+    return this.customerService.update(id, requestDto)
+  }
 
   // @Delete(':id')
   // @ResponseMessage('Deleted')

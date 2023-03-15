@@ -51,4 +51,31 @@ export class MailService {
       },
     })
   }
+
+  async sendPaymentInformation(requestDto: {
+    reservationCode: string
+    email: string
+  }) {
+    const ticket: ITicket =
+      await this.ticketService.retrieveTicketByReservationCode(
+        requestDto.reservationCode
+      )
+    const flight: IFlight = await this.flightService.findOne(ticket.flight.id)
+    ticket.flight = flight
+    if (!requestDto.email) {
+      requestDto.email = ticket.email
+    }
+    await this.mailerService.sendMail({
+      to: requestDto.email,
+      subject: 'AirVenture | Payment Information',
+      template: './payment-information',
+      context: {
+        firstName: ticket.customer.firstName,
+        lastName: ticket.customer.lastName,
+        reservationCode: requestDto.reservationCode,
+        seatCode: ticket.seat.code,
+        price: ticket.price,
+      },
+    })
+  }
 }
