@@ -10,10 +10,11 @@ import { IInvoiceService } from '../invoice/invoice.service'
 import { ITicketService } from '../ticket/ticket.service'
 import { forwardRef } from '@nestjs/common/utils'
 import { IFlightService } from '../flight/flight.service'
+import { ICustomerService } from '../customer/customer.service'
 const bcrypt = require('bcrypt')
 
 export abstract class IAccountService {
-  abstract findAll(): Promise<IAccount[]>
+  abstract findAll(): Promise<any[]>
   abstract findOne(id: string): Promise<IAccount>
   abstract create(account: IAccount): Promise<IAccount>
   abstract update(is: string, account: IAccount): Promise<UpdateResult>
@@ -24,6 +25,7 @@ export abstract class IAccountService {
   abstract getAccountByEmail(email: string): Promise<IAccount>
   abstract retrieveBookingHistory(accountId: string)
   abstract deactivateAccount(accountId: string)
+  abstract activateAccount(accountId: string)
 }
 
 @Injectable()
@@ -36,12 +38,16 @@ export class AccountService implements IAccountService {
     @Inject(forwardRef(() => IInvoiceService))
     private readonly invoiceService: IInvoiceService,
     private readonly ticketService: ITicketService,
-    private readonly flightService: IFlightService
+    private readonly flightService: IFlightService,
+    private readonly customerService: ICustomerService
   ) {
     this.logger = new Logger()
   }
-  async deactivateAccount(id: string) {
-    return await this.accountRepository.update(id, { isActive: false })
+  async activateAccount(accountId: string) {
+    return await this.accountRepository.update(accountId, { isActive: true })
+  }
+  async deactivateAccount(accountId: string) {
+    return await this.accountRepository.update(accountId, { isActive: false })
   }
 
   async retrieveBookingHistory(accountId: string) {
@@ -99,8 +105,23 @@ export class AccountService implements IAccountService {
     }
   }
 
-  async findAll(): Promise<IAccount[]> {
-    return await this.accountRepository.find({ relations: { role: true } })
+  async findAll(): Promise<any[]> {
+    let accounts: any = await this.accountRepository.find({
+      relations: { role: true },
+    })
+    accounts = Promise.all(
+      accounts.map(async (account) => {
+        const customer = await this.customerService.findOneByAccountId(
+          account.id
+        )
+        return {
+          ...account,
+          customer: customer,
+        }
+      })
+    )
+    console.log(accounts)
+    return accounts
   }
 
   async findOne(id: string): Promise<IAccount> {

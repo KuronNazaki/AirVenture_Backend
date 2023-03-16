@@ -9,6 +9,7 @@ import { InvoiceModule } from '../invoice/invoice.module'
 import { TicketModule } from '../ticket/ticket.module'
 import { forwardRef } from '@nestjs/common/utils'
 import { FlightModule } from '../flight/flight.module'
+import { CustomerModule } from '../customer/customer.module'
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { FlightModule } from '../flight/flight.module'
     forwardRef(() => InvoiceModule),
     TicketModule,
     FlightModule,
+    CustomerModule,
   ],
   providers: [
     {

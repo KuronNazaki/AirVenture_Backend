@@ -10,6 +10,7 @@ export abstract class ICustomerService {
   abstract create(role: ICustomer): Promise<ICustomer>
   abstract update(is: string, role: CustomerRequestDto): Promise<UpdateResult>
   abstract delete(id: string): Promise<DeleteResult>
+  abstract findOneByAccountId(accountId: string)
 }
 
 @Injectable()
@@ -18,6 +19,9 @@ export class CustomerService implements ICustomerService {
 
   constructor(private readonly customerRepository: ICustomerRepository) {
     this.logger = new Logger()
+  }
+  async findOneByAccountId(accountId: string) {
+    return await this.customerRepository.findOneByAccountId(accountId)
   }
 
   async findAll(): Promise<ICustomer[]> {

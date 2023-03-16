@@ -23,11 +23,12 @@ export class SeatController {
     return this.seatService.findAll()
   }
 
-  @Get(':id')
+  @Get('available-seat/:flightId')
   @ResponseMessage('Success')
-  async get(@Param('id', new ParseUUIDPipe()) id: string) {
-    const data = await this.seatService.findOne(id)
-    return data
+  async get(@Param('flightId', new ParseUUIDPipe()) flightId: string) {
+    // const data = await this.seatService.findOne(flightId)
+    // return data
+    return await this.seatService.getAvailableSeats(flightId)
   }
 
   // @Post()

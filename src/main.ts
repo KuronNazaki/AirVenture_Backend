@@ -20,6 +20,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ transform: true }))
   app.useGlobalInterceptors(new ClassSerializerInterceptor(reflector))
   app.useGlobalFilters(new HttpExceptionFilter())
+  app.enableCors()
 
   await app.listen(PORT, () =>
     logger.log(`Nest server is running on port ${PORT}`)

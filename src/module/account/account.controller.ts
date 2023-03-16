@@ -25,15 +25,20 @@ import { RolesGuard } from '../../common/guard/role-based.guard'
 import { Roles } from 'src/common/decorator/roles.decorator'
 import { RolesEnum } from 'src/app/constant/app.constant'
 import { ApiPath } from '../../app/constant/app.constant'
+import { ICustomerService } from '../customer/customer.service'
+import { Post } from '@nestjs/common/decorators'
 
 @Controller({ path: [ApiPath.BASE, ApiPath.ACCOUNTS].join('/'), version: '1' })
 @UseInterceptors(TransformInterceptor<AccountRequestDto>)
 export class AccountController {
-  constructor(private readonly accountService: IAccountService) {}
+  constructor(
+    private readonly accountService: IAccountService,
+    private readonly customerService: ICustomerService
+  ) {}
 
   @Get()
-  @Roles(RolesEnum.ADMINISTRATOR)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  // @Roles(RolesEnum.ADMINISTRATOR)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
   @ResponseMessage('Success')
   async findAll(): Promise<IAccount[]> {
     const data: any = await this.accountService.findAll()
@@ -80,11 +85,19 @@ export class AccountController {
   //   return this.accountService.update(id, account)
   // }
 
-  @Delete(':id')
-  @Roles(RolesEnum.ADMINISTRATOR)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Delete('deactivate/:id')
+  // @Roles(RolesEnum.ADMINISTRATOR)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
   @ResponseMessage('Deactivated')
-  deleteUser(@Param('id', new ParseUUIDPipe()) id: string) {
+  deactivateAccount(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.accountService.deactivateAccount(id)
+  }
+
+  @Post('activate/:id')
+  // @Roles(RolesEnum.ADMINISTRATOR)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  @ResponseMessage('Activated')
+  activateAccount(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.accountService.activateAccount(id)
   }
 }

@@ -4,9 +4,14 @@ import { CustomerController } from './customer.controller'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { ICustomerRepository, CustomerRepository } from './customer.repository'
 import { CustomerEntity } from './customer.model'
+import { AccountModule } from '../account/account.module'
+import { forwardRef } from '@nestjs/common/utils'
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CustomerEntity])],
+  imports: [
+    TypeOrmModule.forFeature([CustomerEntity]),
+    forwardRef(() => AccountModule),
+  ],
   providers: [
     {
       provide: ICustomerService,
