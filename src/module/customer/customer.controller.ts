@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   UsePipes,
   UseInterceptors,
+  Res,
 } from '@nestjs/common'
 import { JoiValidationPipe } from 'src/common/pipe/joi-validation.pipe'
 import { TransformInterceptor } from '../../common/interceptor/transform.interceptor'
@@ -81,24 +82,24 @@ export class CustomerController {
   //   return createdRole
   // }
 
-  @Put(':id')
+  @Put('update/:id')
   @Roles(
     RolesEnum.AUTHENTICATED_CUSTOMER,
     RolesEnum.EMPLOYEE,
     RolesEnum.ADMINISTRATOR
   )
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @UsePipes(new JoiValidationPipe(updateCustomerRequestSchema))
+  // @UsePipes(new JoiValidationPipe(updateCustomerRequestSchema))
   @ResponseMessage('Updated')
   update(
-    @Param('id', new ParseUUIDPipe()) id: string,
-    @Body()
+    @Body(new JoiValidationPipe(updateCustomerRequestSchema))
     requestDto: {
       firstName: string
       lastName: string
       gender: string
       phoneNumber: string
-    }
+    },
+    @Param('id', new ParseUUIDPipe()) id: string
   ) {
     return this.customerService.update(id, requestDto)
   }

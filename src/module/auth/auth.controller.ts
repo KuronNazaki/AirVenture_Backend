@@ -29,6 +29,7 @@ import { RolesEnum } from '../../app/constant/app.constant'
 import { ResponseMessage } from 'src/common/decorator/response-message.decorator'
 import { UsePipes } from '@nestjs/common/decorators'
 import { JoiValidationPipe } from 'src/common/pipe/joi-validation.pipe'
+import { GoogleAuthGuard } from './google-auth.guard'
 
 @Controller({ path: [ApiPath.BASE, ApiPath.AUTH].join('/'), version: '1' })
 @UseInterceptors(TransformInterceptor)
@@ -37,12 +38,13 @@ export class AuthController {
     private readonly authService: IAuthService,
     private readonly accountService: IAccountService,
     private readonly customerService: ICustomerService
-  ) { }
+  ) {}
 
   @Get(ApiPath.GOOGLE)
   @UseGuards(AuthGuard('google'))
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async googleAuth(@Req() request) {
+  async googleAuth(@Req() request, @Res() response) {
+    response.header('Access-Control-Allow-Origin', '*')
     return
   }
 
@@ -51,7 +53,7 @@ export class AuthController {
   googleAuthRedirect(@Req() request: Request, @Res() response: Response) {
     logger.debug(request.user)
     this.authService.googleLogin(request).then((token) => {
-      response.redirect('http://localhost:3006/?token=' + token.accessToken)
+      response.redirect('http://localhost:3006/login/' + token.accessToken)
     })
   }
 

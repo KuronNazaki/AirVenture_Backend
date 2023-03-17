@@ -11,8 +11,12 @@ export class JoiValidationPipe implements PipeTransform {
   constructor(private schema: ObjectSchema) {}
 
   transform(value: any, metadata: ArgumentMetadata) {
-    console.log(value)
+    console.log('value', value)
+    // if (typeof value === 'string') {
+    //   return value
+    // }
     const { error } = this.schema.validate(value)
+    console.log(error)
     if (error) {
       throw new BadRequestException('Validation failed', { cause: error })
     }
