@@ -55,6 +55,15 @@ export class InvoiceController {
     await this.invoiceService.verifyTransaction(requestDto.invoiceId)
   }
 
+  @Post('reject-transaction')
+  @HttpCode(200)
+  @Roles(RolesEnum.EMPLOYEE)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ResponseMessage('Success')
+  async rejectTransaction(@Body() requestDto: { invoiceId: string }) {
+    await this.invoiceService.rejectTransaction(requestDto.invoiceId)
+  }
+
   // @Put(':id')
   // @ResponseMessage('Updated')
   // update(

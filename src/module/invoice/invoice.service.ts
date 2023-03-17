@@ -20,6 +20,7 @@ export abstract class IInvoiceService {
   abstract generateInvoiceFromRequest(requestDto: InvoiceRequestDto)
   abstract onTicketCancel(id: string)
   abstract verifyTransaction(id: string)
+  abstract rejectTransaction(id: string)
   abstract getAllInvoiceByAccount(account: IAccount)
 }
 
@@ -35,6 +36,23 @@ export class InvoiceService implements IInvoiceService {
     private readonly mailService: MailService
   ) {
     this.logger = new Logger()
+  }
+  async rejectTransaction(id: string) {
+    const ticket = await this.ticketService.findTicketByInvoice(id)
+    if (!ticket) {
+      throw new BadRequestException('Invoice is not found')
+    } else {
+      await this.invoiceRepository.update(
+        { id },
+        { status: InvoiceStatusEnum.FAILED }
+      )
+      await this.ticketService.update(ticket.id, {
+        status: TicketStatusEnum.CANCELLED,
+      })
+      // ticket = await this.ticketService.findTicketByInvoice(id)
+      console.log(ticket)
+      return true
+    }
   }
 
   async getAllInvoiceByAccount(account: IAccount) {

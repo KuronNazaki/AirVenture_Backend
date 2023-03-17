@@ -29,6 +29,7 @@ export abstract class ITicketService {
   abstract cancelTicket(reservationCode: string)
   abstract findTicketByInvoice(invoiceId: string): Promise<ITicket>
   abstract findAllTicketByInvoice(invoice: IInvoice): Promise<ITicket>
+  abstract findAllPendingTicket()
 }
 
 @Injectable()
@@ -43,6 +44,21 @@ export class TicketService implements ITicketService {
     private readonly invoiceService: IInvoiceService,
     private readonly flightService: IFlightService
   ) {}
+  async findAllPendingTicket() {
+    return await this.ticketRepository.find({
+      where: { status: TicketStatusEnum.PENDING },
+      relations: {
+        flight: {
+          departure: true,
+          arrival: true,
+          aircraft: true,
+        },
+        seat: true,
+        customer: true,
+        invoice: true,
+      },
+    })
+  }
 
   async findTicketByInvoice(invoiceId: string) {
     const ticket = await this.ticketRepository.findTicketByInvoiceId(invoiceId)

@@ -47,6 +47,13 @@ export class TicketController {
     )
   }
 
+  @Get('pending-reservation')
+  @ResponseMessage('Success')
+  @UsePipes(new JoiValidationPipe(retrieveTicketRequestSchema))
+  getPendingTicket(): Promise<ITicket[]> {
+    return this.ticketService.findAllPendingTicket()
+  }
+
   // @Get(':id')
   // @ResponseMessage('Success')
   // async get(@Param('id', new ParseUUIDPipe()) id: string) {
