@@ -53,7 +53,7 @@ export class AuthController {
   googleAuthRedirect(@Req() request: Request, @Res() response: Response) {
     logger.debug(request.user)
     this.authService.googleLogin(request).then((token) => {
-      response.redirect('http://localhost:3006/login/' + token.accessToken)
+      response.redirect('http://localhost:3006/?token=' + token.accessToken)
     })
   }
 
