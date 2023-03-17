@@ -3,6 +3,7 @@ import {
   Get,
   Body,
   Req,
+  Res,
   UseGuards,
   Post,
   UseFilters,
@@ -10,7 +11,7 @@ import {
   BadRequestException,
 } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
-import { Request } from 'express'
+import { Request, Response } from 'express'
 import { IAuthService } from './auth.service'
 import { TransformInterceptor } from '../../common/interceptor/transform.interceptor'
 import { ApiPath } from 'src/app/constant/app.constant'
@@ -36,7 +37,7 @@ export class AuthController {
     private readonly authService: IAuthService,
     private readonly accountService: IAccountService,
     private readonly customerService: ICustomerService
-  ) {}
+  ) { }
 
   @Get(ApiPath.GOOGLE)
   @UseGuards(AuthGuard('google'))
@@ -47,9 +48,11 @@ export class AuthController {
 
   @Get(ApiPath.GOOGLE_REDIRECT)
   @UseGuards(AuthGuard('google'))
-  googleAuthRedirect(@Req() request: Request) {
+  googleAuthRedirect(@Req() request: Request, @Res() response: Response) {
     logger.debug(request.user)
-    return this.authService.googleLogin(request)
+    this.authService.googleLogin(request).then((token) => {
+      response.redirect('http://localhost:3006/?token=' + token.accessToken)
+    })
   }
 
   @Post(ApiPath.REGISTER)
