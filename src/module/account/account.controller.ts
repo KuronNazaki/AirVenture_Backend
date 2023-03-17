@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UseGuards,
   HttpCode,
+  Req,
 } from '@nestjs/common'
 import { JoiValidationPipe } from 'src/common/pipe/joi-validation.pipe'
 import { TransformInterceptor } from '../../common/interceptor/transform.interceptor'
@@ -27,6 +28,7 @@ import { RolesEnum } from 'src/app/constant/app.constant'
 import { ApiPath } from '../../app/constant/app.constant'
 import { ICustomerService } from '../customer/customer.service'
 import { Post } from '@nestjs/common/decorators'
+import { Request } from 'express'
 
 @Controller({ path: [ApiPath.BASE, ApiPath.ACCOUNTS].join('/'), version: '1' })
 @UseInterceptors(TransformInterceptor<AccountRequestDto>)
@@ -45,13 +47,14 @@ export class AccountController {
     return data
   }
 
-  @Get(ApiPath.BOOKING_HISTORY)
+  @Post(ApiPath.BOOKING_HISTORY)
   @HttpCode(HttpStatus.OK)
   @Roles(RolesEnum.EMPLOYEE, RolesEnum.AUTHENTICATED_CUSTOMER)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UsePipes(new JoiValidationPipe(retrieveBookingHistoryRequestSchema))
   @ResponseMessage('Success')
-  async retrieveBookingHistory(@Body() requestDto: { accountId: string }) {
+  async retrieveBookingHistory(@Req() request: Request) {
+    const requestDto: any = request.body
     return this.accountService.retrieveBookingHistory(requestDto.accountId)
   }
 
@@ -86,16 +89,16 @@ export class AccountController {
   // }
 
   @Delete('deactivate/:id')
-  // @Roles(RolesEnum.ADMINISTRATOR)
-  // @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RolesEnum.ADMINISTRATOR)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @ResponseMessage('Deactivated')
   deactivateAccount(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.accountService.deactivateAccount(id)
   }
 
   @Post('activate/:id')
-  // @Roles(RolesEnum.ADMINISTRATOR)
-  // @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RolesEnum.ADMINISTRATOR)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @ResponseMessage('Activated')
   activateAccount(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.accountService.activateAccount(id)

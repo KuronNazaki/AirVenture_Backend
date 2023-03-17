@@ -36,7 +36,7 @@ export class TicketController {
     private readonly mailService: MailService
   ) {}
 
-  @Get(ApiPath.RETRIEVE)
+  @Post(ApiPath.RETRIEVE)
   @ResponseMessage('Success')
   @UsePipes(new JoiValidationPipe(retrieveTicketRequestSchema))
   retrieveTicket(
