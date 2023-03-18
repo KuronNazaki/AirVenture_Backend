@@ -49,11 +49,31 @@ export class FlightService implements IFlightService {
       arrival.id
     )
     listOfFlights = listOfFlights.filter((flight) => {
+      console.log(
+        flight.departTime.toLocaleDateString('en-US', {
+          timeZone: 'Europe/London',
+        }),
+        flight.arriveTime.toLocaleDateString('en-US', {
+          timeZone: 'Europe/London',
+        }),
+        departDate.toLocaleDateString(),
+        flight.departTime.toLocaleDateString('en-US', {
+          timeZone: 'Europe/London',
+        }) === departDate.toLocaleDateString(),
+        flight.arriveTime.toLocaleDateString('en-US', {
+          timeZone: 'Europe/London',
+        }) === departDate.toLocaleDateString()
+      )
       return (
-        flight.departTime.toDateString() === departDate.toDateString() &&
-        flight.arriveTime.toDateString() === departDate.toDateString()
+        flight.departTime.toLocaleDateString('en-US', {
+          timeZone: 'Europe/London',
+        }) === departDate.toLocaleDateString() &&
+        flight.arriveTime.toLocaleDateString('en-US', {
+          timeZone: 'Europe/London',
+        }) === departDate.toLocaleDateString()
       )
     })
+    console.log(listOfFlights)
     return listOfFlights
   }
 

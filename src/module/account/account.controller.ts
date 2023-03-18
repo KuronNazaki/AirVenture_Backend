@@ -39,8 +39,6 @@ export class AccountController {
   ) {}
 
   @Get()
-  // @Roles(RolesEnum.ADMINISTRATOR)
-  // @UseGuards(JwtAuthGuard, RolesGuard)
   @ResponseMessage('Success')
   async findAll(): Promise<IAccount[]> {
     const data: any = await this.accountService.findAll()
@@ -49,7 +47,11 @@ export class AccountController {
 
   @Post(ApiPath.BOOKING_HISTORY)
   @HttpCode(HttpStatus.OK)
-  @Roles(RolesEnum.EMPLOYEE, RolesEnum.AUTHENTICATED_CUSTOMER)
+  @Roles(
+    RolesEnum.EMPLOYEE,
+    RolesEnum.AUTHENTICATED_CUSTOMER,
+    RolesEnum.ADMINISTRATOR
+  )
   @UseGuards(JwtAuthGuard, RolesGuard)
   @UsePipes(new JoiValidationPipe(retrieveBookingHistoryRequestSchema))
   @ResponseMessage('Success')
@@ -89,16 +91,12 @@ export class AccountController {
   // }
 
   @Delete('deactivate/:id')
-  @Roles(RolesEnum.ADMINISTRATOR)
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @ResponseMessage('Deactivated')
   deactivateAccount(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.accountService.deactivateAccount(id)
   }
 
   @Post('activate/:id')
-  @Roles(RolesEnum.ADMINISTRATOR)
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @ResponseMessage('Activated')
   activateAccount(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.accountService.activateAccount(id)

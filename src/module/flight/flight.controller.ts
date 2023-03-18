@@ -7,6 +7,8 @@ import {
   ParseUUIDPipe,
   UsePipes,
   UseInterceptors,
+  Post,
+  HttpCode,
 } from '@nestjs/common'
 import { JoiValidationPipe } from 'src/common/pipe/joi-validation.pipe'
 import { TransformInterceptor } from '../../common/interceptor/transform.interceptor'
@@ -31,7 +33,7 @@ export class FlightController {
     return this.flightService.findAll()
   }
 
-  @Get(ApiPath.SEARCH)
+  @Post(ApiPath.SEARCH)
   @UsePipes(new JoiValidationPipe(searchFlightRequestSchema))
   @ResponseMessage('Success')
   async searchFlights(
@@ -56,15 +58,15 @@ export class FlightController {
     return data
   }
 
-  // @Post()
-  // @HttpCode(201)
-  // @ResponseMessage('Flight Created')
-  // async create(@Body() flightRequest: FlightRequestDto) {
-  //   const createdRole = await this.flightService.create(
-  //     await this.flightService.generateFlightFromRequest(flightRequest)
-  //   )
-  //   return createdRole
-  // }
+  @Post()
+  @HttpCode(201)
+  @ResponseMessage('Flight Created')
+  async create(@Body() flightRequest: FlightRequestDto) {
+    const createdRole = await this.flightService.create(
+      await this.flightService.generateFlightFromRequest(flightRequest)
+    )
+    return createdRole
+  }
 
   // @Put(':id')
   // @ResponseMessage('Updated')

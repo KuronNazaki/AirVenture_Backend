@@ -97,9 +97,12 @@ export class TicketService implements ITicketService {
   }
 
   async retrieveTicketByReservationCode(reservationCode: string) {
-    return await this.ticketRepository.findTicketByReservationCode(
+    const ticket = await this.ticketRepository.findTicketByReservationCode(
       reservationCode
     )
+    const flight = await this.flightService.findOne(ticket.flight.id)
+    ticket.flight = flight
+    return ticket
   }
 
   private async didCustomerBookFlight(customerId: string, flightId: string) {
